@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Benahous Battle Combat 2026</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
+
+  .top-bar { background: #111; border-bottom: 1px solid #222; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
+  .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo span { color: #f0a500; }
+  .live { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
+  .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #1baf7a; animation: blink 1.5s infinite; }
+  @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+
+  .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
+
+  .period-row { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
+  .period-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #2a2a2a; background: transparent; color: #666; cursor: pointer; font-family: inherit; }
+  .period-btn.active { background: #f0a500; color: #000; border-color: #f0a500; font-weight: 600; }
+
+  .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
+  .kpi { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; padding: 16px; }
+  .kpi-label { font-size: 11px; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
+  .kpi-value { font-size: 26px; font-weight: 600; color: #fff; }
+  .kpi-sub { font-size: 11px; color: #444; margin-top: 4px; }
+
+  .section-label { font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
+
+  .sub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
+  .sub-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; padding: 16px; }
+  .sub-card.first { border-color: #f0a500; }
+  .sub-rank { font-size: 11px; color: #444; margin-bottom: 4px; }
+  .sub-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .sub-pts { font-size: 28px; font-weight: 600; }
+  .sub-meta { font-size: 11px; color: #444; margin-top: 4px; }
+
+  .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+  .filter-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #2a2a2a; background: transparent; color: #666; cursor: pointer; font-family: inherit; }
+  .filter-btn.active { background: #1f1f1f; color: #fff; border-color: #444; }
+
+  .table-wrap { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; overflow: hidden; }
+  .table-head { display: grid; grid-template-columns: 44px 40px 1fr 110px 70px 70px 70px 70px 70px; padding: 10px 16px; background: #111; border-bottom: 1px solid #1f1f1f; }
+  .table-head span { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
+  .table-head span:nth-child(3) { text-align: left; }
+  .t-row { display: grid; grid-template-columns: 44px 40px 1fr 110px 70px 70px 70px 70px 70px; padding: 12px 16px; border-bottom: 1px solid #1a1a1a; align-items: center; transition: background 0.1s; }
+  .t-row:last-child { border-bottom: none; }
+  .t-row:hover { background: #1a1a1a; }
+  .rank { font-size: 14px; color: #444; text-align: center; }
+  .rank.g { color: #f0a500; font-weight: 600; }
+  .rank.s { color: #999; font-weight: 600; }
+  .rank.b { color: #cd7c2f; font-weight: 600; }
+  .av { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 600; }
+  .name { font-size: 13px; font-weight: 500; }
+  .team-tag { font-size: 10px; color: #444; margin-top: 1px; }
+  .sub-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
+  .cell { text-align: right; font-size: 13px; color: #888; }
+  .cell.pts { color: #f0a500; font-weight: 600; font-size: 14px; }
+
+  .loading { text-align: center; padding: 60px; color: #444; font-size: 14px; }
+  .error { text-align: center; padding: 40px; color: #e24b4a; font-size: 13px; }
+
+  @media (max-width: 768px) {
+    .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    .sub-cards { grid-template-columns: 1fr; }
+    .table-head, .t-row { grid-template-columns: 36px 32px 1fr 80px 50px 50px 60px; }
+    .table-head span:nth-child(6), .t-row .cell:nth-child(6),
+    .table-head span:nth-child(7), .t-row .cell:nth-child(7) { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <div class="logo"><span>Benahous</span> Battle Combat 2026</div>
+  <div class="live"><div class="live-dot"></div> Live data</div>
+</div>
+
+<div class="wrap">
+  <div class="period-row">
+    <button class="period-btn active">Monthly</button>
+    <button class="period-btn">Quarterly</button>
+    <button class="period-btn">Yearly</button>
+    <span style="margin-left:auto;font-size:12px;color:#444" id="last-updated"></span>
+  </div>
+
+  <div class="kpi-row">
+    <div class="kpi"><div class="kpi-label">Total leads</div><div class="kpi-value" id="k-leads">-</div><div class="kpi-sub">All sub-accounts</div></div>
+    <div class="kpi"><div class="kpi-label">Total consults</div><div class="kpi-value" id="k-consult">-</div><div class="kpi-sub">This period</div></div>
+    <div class="kpi"><div class="kpi-label">Total submits</div><div class="kpi-value" id="k-submit">-</div><div class="kpi-sub">This period</div></div>
+    <div class="kpi"><div class="kpi-label">Total points</div><div class="kpi-value" id="k-pts">-</div><div class="kpi-sub">Combined score</div></div>
+  </div>
+
+  <div class="section-label">Sub-account ranking</div>
+  <div class="sub-cards" id="sub-cards"><div class="loading">Loading...</div></div>
+
+  <div class="filter-row" id="filter-row">
+    <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+  </div>
+
+  <div class="section-label">Consultant leaderboard</div>
+  <div class="table-wrap">
+    <div class="table-head">
+      <span>#</span><span></span>
+      <span style="text-align:left">Consultant</span>
+      <span>Sub-account</span>
+      <span>Leads</span><span>Consult</span><span>Book</span><span>Submit</span>
+      <span>Points</span>
+    </div>
+    <div id="table-body"><div class="loading">Loading data...</div></div>
+  </div>
+</div>
+
+<script>
+  // PASTE YOUR GOOGLE APPS SCRIPT URL HERE
+  const SCRIPT_URL = 'PASTE_YOUR_APPS_SCRIPT_URL_HERE';
+
+  const subColors = {
+    'YES Empire':   { bg:'rgba(240,165,0,0.15)',  text:'#f0a500' },
+    'Benahous KL':  { bg:'rgba(42,120,214,0.15)', text:'#2a78d6' },
+    'Benahous JB':  { bg:'rgba(27,175,122,0.15)', text:'#1baf7a' },
+  };
+  const avColors = ['#f0a500','#2a78d6','#1baf7a','#eb6834','#e87ba4','#6250d6','#1baf7a','#eb6834'];
+  let allData = [];
+  let currentFilter = 'all';
+
+  async function loadData() {
+    try {
+      const res = await fetch(SCRIPT_URL);
+      const json = await res.json();
+      const headers = json[0];
+      allData = json.slice(1).map(row => {
+        const obj = {};
+        headers.forEach((h, i) => obj[h] = row[i]);
+        return {
+          name: obj['Name'],
+          team: obj['Team'],
+          sub: obj['Sub Account'],
+          leads: Number(obj['Leads']) || 0,
+          consult: Number(obj['Consult (1)']) || 0,
+          book: Number(obj['Book (2)']) || 0,
+          submit: Number(obj['Submit (3)']) || 0,
+          points: Number(obj['Points']) || 0,
+        };
+      });
+      document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-MY');
+      buildFilters();
+      render();
+    } catch(e) {
+      document.getElementById('table-body').innerHTML = '<div class="error">Failed to load data. Check your Script URL.</div>';
+      document.getElementById('sub-cards').innerHTML = '<div class="error">Connection error.</div>';
+    }
+  }
+
+  function buildFilters() {
+    const subs = [...new Set(allData.map(d => d.sub))];
+    const row = document.getElementById('filter-row');
+    row.innerHTML = '<button class="filter-btn active" onclick="setFilter(\'all\',this)">All</button>';
+    subs.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'filter-btn';
+      btn.textContent = s;
+      btn.onclick = function() { setFilter(s, this); };
+      row.appendChild(btn);
+    });
+  }
+
+  function setFilter(f, btn) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    render();
+  }
+
+  function render() {
+    const filtered = currentFilter === 'all' ? allData : allData.filter(d => d.sub === currentFilter);
+    const sorted = [...filtered].sort((a,b) => b.points - a.points);
+
+    document.getElementById('k-leads').textContent = filtered.reduce((s,d)=>s+d.leads,0);
+    document.getElementById('k-consult').textContent = filtered.reduce((s,d)=>s+d.consult,0);
+    document.getElementById('k-submit').textContent = filtered.reduce((s,d)=>s+d.submit,0);
+    document.getElementById('k-pts').textContent = filtered.reduce((s,d)=>s+d.points,0).toFixed(1);
+
+    const subMap = {};
+    filtered.forEach(d => {
+      if (!subMap[d.sub]) subMap[d.sub] = { pts:0, count:0 };
+      subMap[d.sub].pts += d.points;
+      subMap[d.sub].count++;
+    });
+    const subRanked = Object.entries(subMap).sort((a,b)=>b[1].pts-a[1].pts);
+    const medals = ['🥇','🥈','🥉'];
+    document.getElementById('sub-cards').innerHTML = subRanked.map(([sub,val],i) => {
+      const c = subColors[sub] || { bg:'rgba(255,255,255,0.1)', text:'#fff' };
+      return `<div class="sub-card ${i===0?'first':''}">
+        <div class="sub-rank">${medals[i]||'#'+(i+1)} ${i===0?'Leading':''}</div>
+        <div class="sub-name" style="color:${c.text}">${sub}</div>
+        <div class="sub-pts" style="color:${c.text}">${val.pts.toFixed(1)} <span style="font-size:13px;color:#444">pts</span></div>
+        <div class="sub-meta">${val.count} consultants</div>
+      </div>`;
+    }).join('');
+
+    const rankClass = ['g','s','b'];
+    document.getElementById('table-body').innerHTML = sorted.map((d,i) => {
+      const c = subColors[d.sub] || { bg:'rgba(255,255,255,0.1)', text:'#fff' };
+      const av = avColors[i % avColors.length];
+      return `<div class="t-row">
+        <div class="rank ${rankClass[i]||''}">${i<3?medals[i]:i+1}</div>
+        <div class="av" style="background:${av}22;color:${av}">${d.name[0]}</div>
+        <div>
+          <div class="name">${d.name}</div>
+          <div class="team-tag">Team ${d.team}</div>
+        </div>
+        <div><span class="sub-tag" style="background:${c.bg};color:${c.text}">${d.sub}</span></div>
+        <div class="cell">${d.leads}</div>
+        <div class="cell">${d.consult}</div>
+        <div class="cell">${d.book}</div>
+        <div class="cell">${d.submit}</div>
+        <div class="cell pts">${d.points.toFixed(1)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  loadData();
+  setInterval(loadData, 60000);
+</script>
+</body>
+</html>
