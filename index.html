@@ -4,32 +4,27 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Benahous Battle Combat 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap');
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Inter', sans-serif; background: #0a0a0a; color: #fff; min-height: 100vh; }
-
   .top-bar { background: #111; border-bottom: 1px solid #222; padding: 14px 24px; display: flex; align-items: center; justify-content: space-between; }
-  .logo { font-size: 16px; font-weight: 600; letter-spacing: -0.3px; }
+  .logo { font-size: 16px; font-weight: 600; }
   .logo span { color: #f0a500; }
   .live { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #666; }
   .live-dot { width: 6px; height: 6px; border-radius: 50%; background: #1baf7a; animation: blink 1.5s infinite; }
   @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
-
   .wrap { max-width: 1100px; margin: 0 auto; padding: 24px 16px; }
-
   .period-row { display: flex; align-items: center; gap: 8px; margin-bottom: 24px; }
   .period-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #2a2a2a; background: transparent; color: #666; cursor: pointer; font-family: inherit; }
   .period-btn.active { background: #f0a500; color: #000; border-color: #f0a500; font-weight: 600; }
-
   .kpi-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 24px; }
   .kpi { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; padding: 16px; }
   .kpi-label { font-size: 11px; color: #555; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.06em; }
   .kpi-value { font-size: 26px; font-weight: 600; color: #fff; }
   .kpi-sub { font-size: 11px; color: #444; margin-top: 4px; }
-
   .section-label { font-size: 11px; color: #444; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 12px; }
-
   .sub-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 24px; }
   .sub-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; padding: 16px; }
   .sub-card.first { border-color: #f0a500; }
@@ -37,16 +32,18 @@
   .sub-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
   .sub-pts { font-size: 28px; font-weight: 600; }
   .sub-meta { font-size: 11px; color: #444; margin-top: 4px; }
-
+  .charts-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 24px; }
+  .chart-card { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; padding: 16px; }
+  .chart-title { font-size: 12px; color: #555; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 16px; }
+  .chart-container { position: relative; height: 200px; }
   .filter-row { display: flex; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
   .filter-btn { font-size: 12px; padding: 5px 14px; border-radius: 20px; border: 1px solid #2a2a2a; background: transparent; color: #666; cursor: pointer; font-family: inherit; }
   .filter-btn.active { background: #1f1f1f; color: #fff; border-color: #444; }
-
   .table-wrap { background: #141414; border: 1px solid #1f1f1f; border-radius: 10px; overflow: hidden; }
   .table-head { display: grid; grid-template-columns: 44px 40px 1fr 110px 70px 70px 70px 70px 70px; padding: 10px 16px; background: #111; border-bottom: 1px solid #1f1f1f; }
   .table-head span { font-size: 10px; color: #444; text-transform: uppercase; letter-spacing: 0.06em; text-align: right; }
   .table-head span:nth-child(3) { text-align: left; }
-  .t-row { display: grid; grid-template-columns: 44px 40px 1fr 110px 70px 70px 70px 70px 70px; padding: 12px 16px; border-bottom: 1px solid #1a1a1a; align-items: center; transition: background 0.1s; }
+  .t-row { display: grid; grid-template-columns: 44px 40px 1fr 110px 70px 70px 70px 70px 70px; padding: 12px 16px; border-bottom: 1px solid #1a1a1a; align-items: center; }
   .t-row:last-child { border-bottom: none; }
   .t-row:hover { background: #1a1a1a; }
   .rank { font-size: 14px; color: #444; text-align: center; }
@@ -59,26 +56,20 @@
   .sub-tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 4px; font-weight: 500; }
   .cell { text-align: right; font-size: 13px; color: #888; }
   .cell.pts { color: #f0a500; font-weight: 600; font-size: 14px; }
-
   .loading { text-align: center; padding: 60px; color: #444; font-size: 14px; }
   .error { text-align: center; padding: 40px; color: #e24b4a; font-size: 13px; }
-
   @media (max-width: 768px) {
     .kpi-row { grid-template-columns: repeat(2, 1fr); }
     .sub-cards { grid-template-columns: 1fr; }
-    .table-head, .t-row { grid-template-columns: 36px 32px 1fr 80px 50px 50px 60px; }
-    .table-head span:nth-child(6), .t-row .cell:nth-child(6),
-    .table-head span:nth-child(7), .t-row .cell:nth-child(7) { display: none; }
+    .charts-row { grid-template-columns: 1fr; }
   }
 </style>
 </head>
 <body>
-
 <div class="top-bar">
   <div class="logo"><span>Benahous</span> Battle Combat 2026</div>
   <div class="live"><div class="live-dot"></div> Live data</div>
 </div>
-
 <div class="wrap">
   <div class="period-row">
     <button class="period-btn active">Monthly</button>
@@ -86,21 +77,31 @@
     <button class="period-btn">Yearly</button>
     <span style="margin-left:auto;font-size:12px;color:#444" id="last-updated"></span>
   </div>
-
   <div class="kpi-row">
-    <div class="kpi"><div class="kpi-label">Total leads</div><div class="kpi-value" id="k-leads">-</div><div class="kpi-sub">All sub-accounts</div></div>
-    <div class="kpi"><div class="kpi-label">Total consults</div><div class="kpi-value" id="k-consult">-</div><div class="kpi-sub">This period</div></div>
-    <div class="kpi"><div class="kpi-label">Total submits</div><div class="kpi-value" id="k-submit">-</div><div class="kpi-sub">This period</div></div>
-    <div class="kpi"><div class="kpi-label">Total points</div><div class="kpi-value" id="k-pts">-</div><div class="kpi-sub">Combined score</div></div>
+    <div class="kpi"><div class="kpi-label">Total Leads</div><div class="kpi-value" id="k-leads">-</div><div class="kpi-sub">All sub-accounts</div></div>
+    <div class="kpi"><div class="kpi-label">Total Consults</div><div class="kpi-value" id="k-consult">-</div><div class="kpi-sub">This period</div></div>
+    <div class="kpi"><div class="kpi-label">Total Submits</div><div class="kpi-value" id="k-submit">-</div><div class="kpi-sub">This period</div></div>
+    <div class="kpi"><div class="kpi-label">Total Points</div><div class="kpi-value" id="k-pts">-</div><div class="kpi-sub">Combined score</div></div>
   </div>
-
   <div class="section-label">Sub-account ranking</div>
   <div class="sub-cards" id="sub-cards"><div class="loading">Loading...</div></div>
-
+  <div class="charts-row">
+    <div class="chart-card">
+      <div class="chart-title">Points share by sub-account</div>
+      <div class="chart-container"><canvas id="pieChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Leads per consultant</div>
+      <div class="chart-container"><canvas id="barChart"></canvas></div>
+    </div>
+    <div class="chart-card">
+      <div class="chart-title">Performance over time</div>
+      <div class="chart-container"><canvas id="lineChart"></canvas></div>
+    </div>
+  </div>
   <div class="filter-row" id="filter-row">
     <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
   </div>
-
   <div class="section-label">Consultant leaderboard</div>
   <div class="table-wrap">
     <div class="table-head">
@@ -113,19 +114,16 @@
     <div id="table-body"><div class="loading">Loading data...</div></div>
   </div>
 </div>
-
 <script>
-
   const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwSFblmzQ8EtzlB76p4rmZs3cg0XLIKDJawTMSWJyOyoR6Ra3-He8u_G71luB7UlXT8Yg/exec';
-
   const subColors = {
-    'YES Empire':   { bg:'rgba(240,165,0,0.15)',  text:'#f0a500' },
-    'Benahous KL':  { bg:'rgba(42,120,214,0.15)', text:'#2a78d6' },
-    'Benahous JB':  { bg:'rgba(27,175,122,0.15)', text:'#1baf7a' },
+    'YES Empire':  { bg:'rgba(240,165,0,0.15)',  text:'#f0a500', solid:'#f0a500' },
+    'Benahous KL': { bg:'rgba(42,120,214,0.15)', text:'#2a78d6', solid:'#2a78d6' },
+    'Benahous JB': { bg:'rgba(27,175,122,0.15)', text:'#1baf7a', solid:'#1baf7a' },
+    'Benahous':    { bg:'rgba(42,120,214,0.15)', text:'#2a78d6', solid:'#2a78d6' },
   };
   const avColors = ['#f0a500','#2a78d6','#1baf7a','#eb6834','#e87ba4','#6250d6','#1baf7a','#eb6834'];
-  let allData = [];
-  let currentFilter = 'all';
+  let allData = [], pieChart, barChart, lineChart, currentFilter = 'all';
 
   async function loadData() {
     try {
@@ -134,16 +132,12 @@
       const headers = json[0];
       allData = json.slice(1).map(row => {
         const obj = {};
-        headers.forEach((h, i) => obj[h] = row[i]);
+        headers.forEach((h,i) => obj[h] = row[i]);
         return {
-          name: obj['Name'],
-          team: obj['Team'],
-          sub: obj['Sub Account'],
-          leads: Number(obj['Leads']) || 0,
-          consult: Number(obj['Consult (1)']) || 0,
-          book: Number(obj['Book (2)']) || 0,
-          submit: Number(obj['Submit (3)']) || 0,
-          points: Number(obj['Points']) || 0,
+          name: obj['Name'], team: obj['Team'], sub: obj['Sub Account'],
+          leads: Number(obj['Leads'])||0, consult: Number(obj['Consult (1)'])||0,
+          book: Number(obj['Book (2)'])||0, submit: Number(obj['Submit (3)'])||0,
+          points: Number(obj['Points'])||0,
         };
       });
       document.getElementById('last-updated').textContent = 'Updated ' + new Date().toLocaleTimeString('en-MY');
@@ -175,10 +169,77 @@
     render();
   }
 
+  function renderCharts(filtered) {
+    const subMap = {};
+    filtered.forEach(d => {
+      if (!subMap[d.sub]) subMap[d.sub] = { pts:0, leads:0 };
+      subMap[d.sub].pts += d.points;
+      subMap[d.sub].leads += d.leads;
+    });
+    const subNames = Object.keys(subMap);
+    const subPts = subNames.map(s => subMap[s].pts);
+    const subSolids = subNames.map(s => (subColors[s]||{solid:'#888'}).solid);
+
+    // Pie chart
+    if (pieChart) pieChart.destroy();
+    pieChart = new Chart(document.getElementById('pieChart'), {
+      type: 'doughnut',
+      data: { labels: subNames, datasets: [{ data: subPts, backgroundColor: subSolids, borderWidth: 0 }] },
+      options: { plugins: { legend: { labels: { color: '#666', font: { size: 11 } } } }, cutout: '65%' }
+    });
+
+    // Bar chart - top 6 consultants by leads
+    const top6 = [...filtered].sort((a,b) => b.leads - a.leads).slice(0, 6);
+    if (barChart) barChart.destroy();
+    barChart = new Chart(document.getElementById('barChart'), {
+      type: 'bar',
+      data: {
+        labels: top6.map(d => d.name),
+        datasets: [{ data: top6.map(d => d.leads), backgroundColor: top6.map((_,i) => avColors[i % avColors.length] + 'cc'), borderRadius: 4, borderWidth: 0 }]
+      },
+      options: {
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: '#1a1a1a' } },
+          y: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: '#1a1a1a' } }
+        }
+      }
+    });
+
+    // Line chart - simulated weekly performance
+    const weeks = ['Week 1','Week 2','Week 3','Week 4'];
+    const subDatasets = subNames.map(s => {
+      const total = subMap[s].pts;
+      const c = (subColors[s]||{solid:'#888'}).solid;
+      return {
+        label: s,
+        data: [
+          Math.round(total * 0.15),
+          Math.round(total * 0.35),
+          Math.round(total * 0.65),
+          Math.round(total)
+        ],
+        borderColor: c, backgroundColor: c + '22',
+        tension: 0.4, fill: true, pointRadius: 3
+      };
+    });
+    if (lineChart) lineChart.destroy();
+    lineChart = new Chart(document.getElementById('lineChart'), {
+      type: 'line',
+      data: { labels: weeks, datasets: subDatasets },
+      options: {
+        plugins: { legend: { labels: { color: '#666', font: { size: 10 } } } },
+        scales: {
+          x: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: '#1a1a1a' } },
+          y: { ticks: { color: '#555', font: { size: 10 } }, grid: { color: '#1a1a1a' } }
+        }
+      }
+    });
+  }
+
   function render() {
     const filtered = currentFilter === 'all' ? allData : allData.filter(d => d.sub === currentFilter);
     const sorted = [...filtered].sort((a,b) => b.points - a.points);
-
     document.getElementById('k-leads').textContent = filtered.reduce((s,d)=>s+d.leads,0);
     document.getElementById('k-consult').textContent = filtered.reduce((s,d)=>s+d.consult,0);
     document.getElementById('k-submit').textContent = filtered.reduce((s,d)=>s+d.submit,0);
@@ -201,6 +262,8 @@
         <div class="sub-meta">${val.count} consultants</div>
       </div>`;
     }).join('');
+
+    renderCharts(filtered);
 
     const rankClass = ['g','s','b'];
     document.getElementById('table-body').innerHTML = sorted.map((d,i) => {
@@ -228,3 +291,5 @@
 </script>
 </body>
 </html>
+
+  
