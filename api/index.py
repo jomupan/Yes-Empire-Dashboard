@@ -1,10 +1,12 @@
-from flask import Flask, render_template
+﻿from flask import Flask, render_template
 from dotenv import load_dotenv
-from ghl_client import get_contacts, get_opportunities
+import sys
 import os
+sys.path.insert(0, os.path.dirname(__file__))
+from ghl_client import get_contacts, get_opportunities
 
 load_dotenv()
-app = Flask(__name__)
+app = Flask(__name__, template_folder="../templates")
 
 SUB_ACCOUNTS = {
     "YES Empire": {
@@ -56,6 +58,3 @@ def dashboard():
         }
 
     return render_template("dashboard.html", data=data)
-app = Flask(__name__)
-# if __name__ == "__main__":
-#    app.run(debug=True)
