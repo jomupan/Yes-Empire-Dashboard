@@ -53,10 +53,11 @@ def dashboard():
 
         try:
             won = opp_stats.get("won", 0)
-            total = opp_stats["total"]
-            win_rate = round((won / total) * 100, 1) if total > 0 else 0
+            lost = opp_stats.get("lost", 0)
+            closed = won + lost
+            win_rate = round((won / closed) * 100, 1) if closed > 0 else None
         except:
-            win_rate = 0
+            win_rate = None
 
         try:
             stale = get_stale_open_deals(key, loc)

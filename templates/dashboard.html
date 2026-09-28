@@ -147,6 +147,7 @@
         .win-rate-high { background: #1a3d1a; color: #4CAF50; }
         .win-rate-mid { background: #3d3000; color: #FFD700; }
         .win-rate-low { background: #3d1a1a; color: #f44336; }
+        .win-rate-none { background: #1a1a1a; color: #555; }
 
         .stale-badge {
             display: inline-block;
@@ -169,9 +170,8 @@
         .total-card::before { display: none; }
         .total-card .account-name { color: #000; opacity: 0.6; }
         .total-card .metric-value { color: #000; font-size: 48px; }
-        .total-card .metric-label { color: #000; opacity: 0.7; }
+        .total-card .metric-label { color: #000; opacity: 0.7; margin-bottom: 8px; }
         .total-card .win-rate-total {
-            margin-top: 12px;
             font-size: 14px;
             font-weight: 700;
             color: #000;
@@ -251,24 +251,26 @@
 
                 <div class="opp-breakdown">
                     <div class="opp-item">
-                        <span class="opp-count color-open">{{ metrics.opportunities.open }}</span>
+                        <span class="opp-count color-open">{{ "{:,}".format(metrics.opportunities.open) }}</span>
                         <span class="opp-label">Open</span>
                     </div>
                     <div class="opp-item">
-                        <span class="opp-count color-won">{{ metrics.opportunities.won }}</span>
+                        <span class="opp-count color-won">{{ "{:,}".format(metrics.opportunities.won) }}</span>
                         <span class="opp-label">Won</span>
                     </div>
                     <div class="opp-item">
-                        <span class="opp-count color-lost">{{ metrics.opportunities.lost }}</span>
+                        <span class="opp-count color-lost">{{ "{:,}".format(metrics.opportunities.lost) }}</span>
                         <span class="opp-label">Lost</span>
                     </div>
                     <div class="opp-item">
-                        <span class="opp-count color-abandoned">{{ metrics.opportunities.abandoned }}</span>
+                        <span class="opp-count color-abandoned">{{ "{:,}".format(metrics.opportunities.abandoned) }}</span>
                         <span class="opp-label">Abandoned</span>
                     </div>
                 </div>
 
-                {% if metrics.win_rate >= 30 %}
+                {% if metrics.win_rate is none %}
+                <div class="win-rate-badge win-rate-none">No closed deals</div>
+                {% elif metrics.win_rate >= 30 %}
                 <div class="win-rate-badge win-rate-high">Win Rate: {{ metrics.win_rate }}%</div>
                 {% elif metrics.win_rate >= 10 %}
                 <div class="win-rate-badge win-rate-mid">Win Rate: {{ metrics.win_rate }}%</div>
@@ -325,10 +327,14 @@
         document.getElementById('grandTotalOpps').textContent = totalOpps.toLocaleString();
 
         const totalWon = wonValues.reduce((a, b) => a + b, 0);
-        const overallWinRate = totalOpps > 0 ? ((totalWon / totalOpps) * 100).toFixed(1) : 0;
-        document.getElementById('overallWinRate').textContent = `Overall Win Rate: ${overallWinRate}%`;
+        const totalLost = lostValues.reduce((a, b) => a + b, 0);
+        const totalClosed = totalWon + totalLost;
+        const overallWinRate = totalClosed > 0 ? ((totalWon / totalClosed) * 100).toFixed(1) : null;
+        document.getElementById('overallWinRate').textContent = overallWinRate
+            ? `Overall Win Rate: ${overallWinRate}%`
+            : 'Overall Win Rate: No closed deals';
 
-        // Bar Chart - Contacts
+        // Bar Chart - Contacts (linear scale, honest)
         new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
@@ -345,20 +351,21 @@
                 responsive: true,
                 plugins: {
                     legend: { display: false },
-                    tooltip: { enabled: true }
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.parsed.y.toLocaleString();
+                            }
+                        }
+                    }
                 },
                 scales: {
                     x: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } },
                     y: {
-                        type: 'logarithmic',
                         ticks: {
                             color: '#888',
-                            maxTicksLimit: 5,
                             callback: function(value) {
-                                if (value === 100 || value === 1000 || value === 10000 || value === 50000 || value === 100000) {
-                                    return value.toLocaleString();
-                                }
-                                return '';
+                                return value.toLocaleString();
                             }
                         },
                         grid: { color: '#1a1a1a' }
@@ -367,7 +374,7 @@
             }
         });
 
-        // Status Chart - Grouped bars (not stacked) so every status is clearly visible
+        // Status Chart - Grouped bars
         new Chart(document.getElementById('statusChart'), {
             type: 'bar',
             data: {
@@ -405,6 +412,13 @@
                     legend: {
                         position: 'bottom',
                         labels: { color: '#888', padding: 16 }
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                return ' ' + context.dataset.label + ': ' + context.parsed.y.toLocaleString();
+                            }
+                        }
                     }
                 },
                 scales: {
