@@ -102,15 +102,7 @@
             font-size: 12px;
             color: #666;
         }
-        .card .icon {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            font-size: 28px;
-            opacity: 0.15;
-        }
 
-        /* TOTAL CARD */
         .total-card {
             background: #FFD700;
             border: none;
@@ -122,7 +114,6 @@
         .total-card .account-name { color: #000; opacity: 0.6; }
         .total-card .metric-value { color: #000; font-size: 48px; }
         .total-card .metric-label { color: #000; opacity: 0.7; }
-        .total-card .icon { opacity: 0.1; color: #000; }
 
         .charts-grid {
             display: grid;
@@ -146,6 +137,16 @@
             max-height: 250px;
         }
 
+        .opp-breakdown {
+            margin-top: 12px;
+            font-size: 12px;
+            line-height: 2;
+        }
+        .opp-open { color: #4CAF50; }
+        .opp-won { color: #FFD700; }
+        .opp-lost { color: #f44336; }
+        .opp-abandoned { color: #888; }
+
         .footer {
             text-align: center;
             padding: 20px;
@@ -159,131 +160,122 @@
 
     <div class="header">
         <div>
-            <h1> YES EMPIRE Dashboard</h1>
-            <div class="subtitle"></div>
+            <h1>YES EMPIRE Dashboard</h1>
+            <div class="subtitle">Unified Sub-Account Overview</div>
         </div>
-        <div class="live-badge">● LIVE</div>
+        <div class="live-badge">LIVE</div>
     </div>
 
     <div class="container">
 
-    <!-- CONTACTS SECTION -->
-    <div class="section-label">Total Contacts per Sub-Account</div>
-    <div class="cards-grid">
-        {% for name, metrics in data.items() %}
-        <div class="card">
-            <div class="icon">👥</div>
-            <div class="account-name">{{ name }}</div>
-            <div class="metric-value">{{ "{:,}".format(metrics.total_contacts) if metrics.total_contacts != 'Error' else 'N/A' }}</div>
-            <div class="metric-label">Total Contacts</div>
-        </div>
-        {% endfor %}
+        <!-- CONTACTS SECTION -->
+        <div class="section-label">Total Contacts per Sub-Account</div>
+        <div class="cards-grid">
+            {% for name, metrics in data.items() %}
+            <div class="card">
+                <div class="account-name">{{ name }}</div>
+                <div class="metric-value">{{ "{:,}".format(metrics.total_contacts) if metrics.total_contacts != 'Error' else 'N/A' }}</div>
+                <div class="metric-label">Total Contacts</div>
+            </div>
+            {% endfor %}
 
-        <div class="total-card">
-            <div class="icon">🏆</div>
-            <div class="account-name">YES Empire Total</div>
-            <div class="metric-value" id="grandTotal">—</div>
-            <div class="metric-label">Combined Contacts Across All Sub-Accounts</div>
+            <div class="total-card">
+                <div class="account-name">YES Empire Total</div>
+                <div class="metric-value" id="grandTotal">—</div>
+                <div class="metric-label">Combined Contacts Across All Sub-Accounts</div>
+            </div>
         </div>
+
+        <!-- OPPORTUNITIES SECTION -->
+        <div class="section-label">Opportunities per Sub-Account</div>
+        <div class="cards-grid">
+            {% for name, metrics in data.items() %}
+            <div class="card">
+                <div class="account-name">{{ name }}</div>
+                <div class="metric-value">{{ "{:,}".format(metrics.opportunities.total) if metrics.opportunities.total != 'Error' else 'N/A' }}</div>
+                <div class="metric-label">Total Opportunities</div>
+                <div class="opp-breakdown">
+                    <span class="opp-open">Open: {{ metrics.opportunities.open }}</span><br>
+                    <span class="opp-won">Won: {{ metrics.opportunities.won }}</span><br>
+                    <span class="opp-lost">Lost: {{ metrics.opportunities.lost }}</span><br>
+                    <span class="opp-abandoned">Abandoned: {{ metrics.opportunities.abandoned }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- CHARTS -->
+        <div class="section-label">Visual Breakdown</div>
+        <div class="charts-grid">
+            <div class="chart-card">
+                <h3>Contacts by Sub-Account</h3>
+                <canvas id="barChart"></canvas>
+            </div>
+            <div class="chart-card">
+                <h3>Distribution</h3>
+                <canvas id="pieChart"></canvas>
+            </div>
+        </div>
+
     </div>
-
-    <!-- OPPORTUNITIES SECTION -->
-<div class="section-label">Opportunities per Sub-Account</div>
-<div class="cards-grid">
-    {% for name, metrics in data.items() %}
-    <div class="card">
-        <div class="icon">💼</div>
-        <div class="account-name">{{ name }}</div>
-        <div class="metric-value">{{ "{:,}".format(metrics.opportunities.total) if metrics.opportunities.total != 'Error' else 'N/A' }}</div>
-        <div class="metric-label">Total Opportunities</div>
-        <div style="margin-top:12px; font-size:12px; color:#888; line-height:2;">
-            <span style="color:#4CAF50;">● Open: {{ metrics.opportunities.open }}</span><br>
-            <span style="color:#FFD700;">● Won: {{ metrics.opportunities.won }}</span><br>
-            <span style="color:#f44336;">● Lost: {{ metrics.opportunities.lost }}</span><br>
-            <span style="color:#888;">● Abandoned: {{ metrics.opportunities.abandoned }}</span>
-        </div>
-    </div>
-    {% endfor %}
-</div>
-
-    <!-- CHARTS -->
-    <div class="section-label">Visual Breakdown</div>
-    <div class="charts-grid">
-        <div class="chart-card">
-            <h3>📊 Contacts by Sub-Account</h3>
-            <canvas id="barChart"></canvas>
-        </div>
-        <div class="chart-card">
-            <h3>🥧 Distribution</h3>
-            <canvas id="pieChart"></canvas>
-        </div>
-    </div>
-
-</div>
 
     <div class="footer">
         YES Empire · Powered by GHL API · Built by Muaz
     </div>
 
     <script>
-    const labels = [{% for name in data %}"{{ name }}",{% endfor %}];
-    const contactValues = [{% for name, metrics in data.items() %}{{ metrics.total_contacts if metrics.total_contacts != 'Error' else 0 }},{% endfor %}];
-    const oppValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.total if metrics.opportunities.total != 'Error' else 0 }},{% endfor %}];
+        const labels = [{% for name in data %}"{{ name }}",{% endfor %}];
+        const contactValues = [{% for name, metrics in data.items() %}{{ metrics.total_contacts if metrics.total_contacts != 'Error' else 0 }},{% endfor %}];
+        const oppValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.total if metrics.opportunities.total != 'Error' else 0 }},{% endfor %}];
 
-    // Grand total contacts
-    const total = contactValues.reduce((a, b) => a + b, 0);
-    document.getElementById('grandTotal').textContent = total.toLocaleString();
+        const total = contactValues.reduce((a, b) => a + b, 0);
+        document.getElementById('grandTotal').textContent = total.toLocaleString();
 
-    // Grand total opportunities
-    const totalOpps = oppValues.reduce((a, b) => a + b, 0);
+        const colors = ['#FFD700', '#FFA500', '#FFE066', '#FFC300'];
 
-    const colors = ['#FFD700', '#FFA500', '#FFE066', '#FFC300'];
-
-    // Bar Chart - Contacts
-    new Chart(document.getElementById('barChart'), {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Total Contacts',
-                data: contactValues,
-                backgroundColor: colors,
-                borderRadius: 8,
-                borderSkipped: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: { legend: { display: false } },
-            scales: {
-                x: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } },
-                y: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } }
-            }
-        }
-    });
-
-    // Pie Chart - Distribution
-    new Chart(document.getElementById('pieChart'), {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: contactValues,
-                backgroundColor: colors,
-                borderWidth: 0,
-            }]
-        },
-        options: {
-            responsive: true,
-            plugins: {
-                legend: {
-                    position: 'bottom',
-                    labels: { color: '#888', padding: 16 }
+        new Chart(document.getElementById('barChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Total Contacts',
+                    data: contactValues,
+                    backgroundColor: colors,
+                    borderRadius: 8,
+                    borderSkipped: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } },
+                    y: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } }
                 }
             }
-        }
-    });
-</script>
+        });
+
+        new Chart(document.getElementById('pieChart'), {
+            type: 'doughnut',
+            data: {
+                labels: labels,
+                datasets: [{
+                    data: contactValues,
+                    backgroundColor: colors,
+                    borderWidth: 0,
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#888', padding: 16 }
+                    }
+                }
+            }
+        });
+    </script>
 
 </body>
 </html>

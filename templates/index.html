@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YES Empire — Command Center</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #0a0a0a;
+            color: #fff;
+            min-height: 100vh;
+        }
+
+        /* NAV */
+        nav {
+            padding: 24px 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid #1a1a1a;
+        }
+        .logo {
+            font-size: 16px;
+            font-weight: 800;
+            color: #FFD700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+        .nav-btn {
+            background: #FFD700;
+            color: #000;
+            font-size: 13px;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .nav-btn:hover { opacity: 0.85; }
+
+        /* HERO */
+        .hero {
+            padding: 120px 60px 80px;
+            max-width: 900px;
+        }
+        .hero-tag {
+            display: inline-block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: #FFD700;
+            text-transform: uppercase;
+            margin-bottom: 32px;
+            border: 1px solid #FFD70033;
+            padding: 6px 14px;
+            border-radius: 4px;
+        }
+        .hero h1 {
+            font-size: 72px;
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 28px;
+            color: #fff;
+        }
+        .hero h1 span {
+            color: #FFD700;
+        }
+        .hero p {
+            font-size: 18px;
+            color: #666;
+            line-height: 1.7;
+            max-width: 560px;
+            margin-bottom: 48px;
+        }
+        .hero-cta {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+        .btn-primary {
+            background: #FFD700;
+            color: #000;
+            font-size: 14px;
+            font-weight: 700;
+            padding: 14px 32px;
+            border-radius: 6px;
+            text-decoration: none;
+            transition: opacity 0.2s;
+        }
+        .btn-primary:hover { opacity: 0.85; }
+        .btn-secondary {
+            font-size: 14px;
+            color: #666;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        .btn-secondary:hover { color: #fff; }
+
+        /* STATS BAR */
+        .stats-bar {
+            margin: 0 60px;
+            padding: 32px 40px;
+            background: #111;
+            border: 1px solid #222;
+            border-radius: 12px;
+            display: flex;
+            gap: 0;
+        }
+        .stat {
+            flex: 1;
+            padding: 0 40px 0 0;
+            border-right: 1px solid #222;
+        }
+        .stat:last-child {
+            border-right: none;
+            padding-left: 40px;
+            padding-right: 0;
+        }
+        .stat:first-child { padding-left: 0; }
+        .stat-value {
+            font-size: 36px;
+            font-weight: 800;
+            color: #FFD700;
+            line-height: 1;
+            margin-bottom: 6px;
+        }
+        .stat-label {
+            font-size: 12px;
+            color: #555;
+        }
+
+        /* FEATURES */
+        .features {
+            padding: 100px 60px;
+        }
+        .features h2 {
+            font-size: 13px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            color: #444;
+            text-transform: uppercase;
+            margin-bottom: 60px;
+        }
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2px;
+            background: #1a1a1a;
+            border: 1px solid #1a1a1a;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+        .feature {
+            background: #0a0a0a;
+            padding: 40px;
+        }
+        .feature-icon {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .feature h3 {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+        .feature p {
+            font-size: 13px;
+            color: #555;
+            line-height: 1.7;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 40px 60px;
+            border-top: 1px solid #1a1a1a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        footer p {
+            font-size: 12px;
+            color: #333;
+        }
+        .footer-link {
+            font-size: 12px;
+            color: #FFD700;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <div class="logo">YES Empire</div>
+        <a href="/dashboard" class="nav-btn">Open Dashboard</a>
+    </nav>
+
+    <div class="hero">
+        <div class="hero-tag">Command Center</div>
+        <h1>All your sub-accounts.<br><span>One place.</span></h1>
+        <p>Real-time visibility across YES Empire, Benashield, Benahous, and Benaccount — contacts, opportunities, and pipeline data unified in a single dashboard.</p>
+        <div class="hero-cta">
+            <a href="/dashboard" class="btn-primary">View Dashboard</a>
+            <a href="#features" class="btn-secondary">How it works</a>
+        </div>
+    </div>
+
+    <div class="stats-bar">
+        <div class="stat">
+            <div class="stat-value">4</div>
+            <div class="stat-label">Sub-accounts connected</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">Live</div>
+            <div class="stat-label">Data refresh on every load</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">GHL</div>
+            <div class="stat-label">Powered by GoHighLevel API</div>
+        </div>
+        <div class="stat">
+            <div class="stat-value">5</div>
+            <div class="stat-label">Metrics tracked per account</div>
+        </div>
+    </div>
+
+    <div class="features" id="features">
+        <h2>What it does</h2>
+        <div class="features-grid">
+            <div class="feature">
+                <div class="feature-icon">👥</div>
+                <h3>Contact Overview</h3>
+                <p>See total contacts per sub-account and the combined count across all of YES Empire in real time.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">💼</div>
+                <h3>Pipeline Tracking</h3>
+                <p>Track opportunities broken down by status — open, won, lost, and abandoned — for each sub-account.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">📊</div>
+                <h3>Visual Breakdown</h3>
+                <p>Bar charts and doughnut charts give you an instant picture of how each sub-account compares.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔌</div>
+                <h3>GHL API Integration</h3>
+                <p>Connects directly to GoHighLevel's API using private integration tokens — no manual exports needed.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">⚡</div>
+                <h3>Real-time Data</h3>
+                <p>Every page load pulls fresh data straight from GHL. No caching, no stale numbers.</p>
+            </div>
+            <div class="feature">
+                <div class="feature-icon">🔒</div>
+                <h3>Secure by Design</h3>
+                <p>API keys are stored in environment variables, never exposed in the codebase or frontend.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>YES Empire Command Center · Built by Muaz · Powered by GHL API</p>
+        <a href="/dashboard" class="footer-link">Open Dashboard</a>
+    </footer>
+
+</body>
+</html>

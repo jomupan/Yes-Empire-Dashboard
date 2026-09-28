@@ -1,4 +1,4 @@
-from flask import Flask, render_template
+﻿from flask import Flask, render_template
 from dotenv import load_dotenv
 from ghl_client import get_contacts, get_opportunities
 import os
@@ -56,6 +56,6 @@ def dashboard():
         }
 
     return render_template("dashboard.html", data=data)
-app = Flask(__name__)
-# if __name__ == "__main__":
-#    app.run(debug=True)
+
+if __name__ == "__main__":
+    app.run(debug=True)
