@@ -1,7 +1,8 @@
 ﻿from flask import Flask, render_template
 from dotenv import load_dotenv
-from ghl_client import get_contacts, get_opportunities
+from ghl_client import get_contacts, get_opportunities, get_stale_open_deals
 import os
+import datetime
 
 load_dotenv()
 app = Flask(__name__)
@@ -50,12 +51,27 @@ def dashboard():
             v for v in opp_stats.values() if isinstance(v, int)
         )
 
+        try:
+            won = opp_stats.get("won", 0)
+            total = opp_stats["total"]
+            win_rate = round((won / total) * 100, 1) if total > 0 else 0
+        except:
+            win_rate = 0
+
+        try:
+            stale = get_stale_open_deals(key, loc)
+        except:
+            stale = "Error"
+
         data[name] = {
             "total_contacts": total_contacts,
             "opportunities": opp_stats,
+            "win_rate": win_rate,
+            "stale_deals": stale,
         }
 
-    return render_template("dashboard.html", data=data)
+    last_updated = datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
+    return render_template("dashboard.html", data=data, last_updated=last_updated)
 
 if __name__ == "__main__":
     app.run(debug=True)

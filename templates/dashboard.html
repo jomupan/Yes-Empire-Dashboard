@@ -34,6 +34,12 @@
             color: #888;
             margin-top: 4px;
         }
+        .header-right {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 6px;
+        }
         .live-badge {
             background: #FFD700;
             color: #000;
@@ -43,10 +49,12 @@
             border-radius: 20px;
             letter-spacing: 1px;
         }
-
-        .container {
-            padding: 40px;
+        .last-updated {
+            font-size: 11px;
+            color: #555;
         }
+
+        .container { padding: 40px; }
 
         .section-label {
             font-size: 11px;
@@ -59,10 +67,11 @@
 
         .cards-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 40px;
         }
+
         .card {
             background: #111111;
             border: 1px solid #222;
@@ -70,7 +79,10 @@
             padding: 24px;
             position: relative;
             overflow: hidden;
-            transition: transform 0.2s;
+            transition: transform 0.2s, border-color 0.2s;
+            cursor: pointer;
+            display: block;
+            color: inherit;
         }
         .card:hover {
             transform: translateY(-3px);
@@ -92,7 +104,7 @@
             margin-bottom: 12px;
         }
         .card .metric-value {
-            font-size: 40px;
+            font-size: 36px;
             font-weight: 800;
             color: #ffffff;
             line-height: 1;
@@ -101,6 +113,49 @@
         .card .metric-label {
             font-size: 12px;
             color: #666;
+            margin-bottom: 16px;
+        }
+
+        .opp-breakdown {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid #222;
+        }
+        .opp-item { font-size: 11px; }
+        .opp-item .opp-count {
+            font-size: 16px;
+            font-weight: 700;
+            display: block;
+        }
+        .opp-item .opp-label { color: #555; }
+        .color-open { color: #aaaaaa; }
+        .color-won { color: #4CAF50; }
+        .color-lost { color: #f44336; }
+        .color-abandoned { color: #555; }
+
+        .win-rate-badge {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+        .win-rate-high { background: #1a3d1a; color: #4CAF50; }
+        .win-rate-mid { background: #3d3000; color: #FFD700; }
+        .win-rate-low { background: #3d1a1a; color: #f44336; }
+
+        .stale-badge {
+            display: inline-block;
+            margin-top: 6px;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            background: #2a1a00;
+            color: #FFA500;
         }
 
         .total-card {
@@ -109,11 +164,19 @@
             border-radius: 12px;
             padding: 24px;
             grid-column: span 2;
+            cursor: default;
         }
         .total-card::before { display: none; }
         .total-card .account-name { color: #000; opacity: 0.6; }
         .total-card .metric-value { color: #000; font-size: 48px; }
         .total-card .metric-label { color: #000; opacity: 0.7; }
+        .total-card .win-rate-total {
+            margin-top: 12px;
+            font-size: 14px;
+            font-weight: 700;
+            color: #000;
+            opacity: 0.8;
+        }
 
         .charts-grid {
             display: grid;
@@ -133,19 +196,7 @@
             color: #fff;
             margin-bottom: 20px;
         }
-        .chart-card canvas {
-            max-height: 250px;
-        }
-
-        .opp-breakdown {
-            margin-top: 12px;
-            font-size: 12px;
-            line-height: 2;
-        }
-        .opp-open { color: #4CAF50; }
-        .opp-won { color: #FFD700; }
-        .opp-lost { color: #f44336; }
-        .opp-abandoned { color: #888; }
+        .chart-card canvas { max-height: 280px; }
 
         .footer {
             text-align: center;
@@ -163,7 +214,10 @@
             <h1>YES EMPIRE Dashboard</h1>
             <div class="subtitle">Unified Sub-Account Overview</div>
         </div>
-        <div class="live-badge">LIVE</div>
+        <div class="header-right">
+            <div class="live-badge">LIVE</div>
+            <div class="last-updated">Last updated: {{ last_updated }}</div>
+        </div>
     </div>
 
     <div class="container">
@@ -194,14 +248,46 @@
                 <div class="account-name">{{ name }}</div>
                 <div class="metric-value">{{ "{:,}".format(metrics.opportunities.total) if metrics.opportunities.total != 'Error' else 'N/A' }}</div>
                 <div class="metric-label">Total Opportunities</div>
+
                 <div class="opp-breakdown">
-                    <span class="opp-open">Open: {{ metrics.opportunities.open }}</span><br>
-                    <span class="opp-won">Won: {{ metrics.opportunities.won }}</span><br>
-                    <span class="opp-lost">Lost: {{ metrics.opportunities.lost }}</span><br>
-                    <span class="opp-abandoned">Abandoned: {{ metrics.opportunities.abandoned }}</span>
+                    <div class="opp-item">
+                        <span class="opp-count color-open">{{ metrics.opportunities.open }}</span>
+                        <span class="opp-label">Open</span>
+                    </div>
+                    <div class="opp-item">
+                        <span class="opp-count color-won">{{ metrics.opportunities.won }}</span>
+                        <span class="opp-label">Won</span>
+                    </div>
+                    <div class="opp-item">
+                        <span class="opp-count color-lost">{{ metrics.opportunities.lost }}</span>
+                        <span class="opp-label">Lost</span>
+                    </div>
+                    <div class="opp-item">
+                        <span class="opp-count color-abandoned">{{ metrics.opportunities.abandoned }}</span>
+                        <span class="opp-label">Abandoned</span>
+                    </div>
                 </div>
+
+                {% if metrics.win_rate >= 30 %}
+                <div class="win-rate-badge win-rate-high">Win Rate: {{ metrics.win_rate }}%</div>
+                {% elif metrics.win_rate >= 10 %}
+                <div class="win-rate-badge win-rate-mid">Win Rate: {{ metrics.win_rate }}%</div>
+                {% else %}
+                <div class="win-rate-badge win-rate-low">Win Rate: {{ metrics.win_rate }}%</div>
+                {% endif %}
+
+                {% if metrics.stale_deals != 'Error' and metrics.stale_deals > 0 %}
+                <div class="stale-badge">{{ metrics.stale_deals }} stale deals (30+ days)</div>
+                {% endif %}
             </div>
             {% endfor %}
+
+            <div class="total-card">
+                <div class="account-name">YES Empire Total</div>
+                <div class="metric-value" id="grandTotalOpps">—</div>
+                <div class="metric-label">Combined Opportunities Across All Sub-Accounts</div>
+                <div class="win-rate-total" id="overallWinRate">Overall Win Rate: —</div>
+            </div>
         </div>
 
         <!-- CHARTS -->
@@ -212,8 +298,8 @@
                 <canvas id="barChart"></canvas>
             </div>
             <div class="chart-card">
-                <h3>Distribution</h3>
-                <canvas id="pieChart"></canvas>
+                <h3>Opportunity Status Breakdown</h3>
+                <canvas id="statusChart"></canvas>
             </div>
         </div>
 
@@ -226,13 +312,23 @@
     <script>
         const labels = [{% for name in data %}"{{ name }}",{% endfor %}];
         const contactValues = [{% for name, metrics in data.items() %}{{ metrics.total_contacts if metrics.total_contacts != 'Error' else 0 }},{% endfor %}];
-        const oppValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.total if metrics.opportunities.total != 'Error' else 0 }},{% endfor %}];
+        const wonValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.won if metrics.opportunities.won != 'Error' else 0 }},{% endfor %}];
+        const lostValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.lost if metrics.opportunities.lost != 'Error' else 0 }},{% endfor %}];
+        const openValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.open if metrics.opportunities.open != 'Error' else 0 }},{% endfor %}];
+        const abandonedValues = [{% for name, metrics in data.items() %}{{ metrics.opportunities.abandoned if metrics.opportunities.abandoned != 'Error' else 0 }},{% endfor %}];
+        const oppTotals = [{% for name, metrics in data.items() %}{{ metrics.opportunities.total if metrics.opportunities.total != 'Error' else 0 }},{% endfor %}];
 
-        const total = contactValues.reduce((a, b) => a + b, 0);
-        document.getElementById('grandTotal').textContent = total.toLocaleString();
+        const totalContacts = contactValues.reduce((a, b) => a + b, 0);
+        document.getElementById('grandTotal').textContent = totalContacts.toLocaleString();
 
-        const colors = ['#FFD700', '#FFA500', '#FFE066', '#FFC300'];
+        const totalOpps = oppTotals.reduce((a, b) => a + b, 0);
+        document.getElementById('grandTotalOpps').textContent = totalOpps.toLocaleString();
 
+        const totalWon = wonValues.reduce((a, b) => a + b, 0);
+        const overallWinRate = totalOpps > 0 ? ((totalWon / totalOpps) * 100).toFixed(1) : 0;
+        document.getElementById('overallWinRate').textContent = `Overall Win Rate: ${overallWinRate}%`;
+
+        // Bar Chart - Contacts
         new Chart(document.getElementById('barChart'), {
             type: 'bar',
             data: {
@@ -240,30 +336,68 @@
                 datasets: [{
                     label: 'Total Contacts',
                     data: contactValues,
-                    backgroundColor: colors,
+                    backgroundColor: '#FFD700',
                     borderRadius: 8,
                     borderSkipped: false,
                 }]
             },
             options: {
                 responsive: true,
-                plugins: { legend: { display: false } },
+                plugins: {
+                    legend: { display: false },
+                    tooltip: { enabled: true }
+                },
                 scales: {
                     x: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } },
-                    y: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } }
+                    y: {
+                        type: 'logarithmic',
+                        ticks: {
+                            color: '#888',
+                            maxTicksLimit: 5,
+                            callback: function(value) {
+                                if (value === 100 || value === 1000 || value === 10000 || value === 50000 || value === 100000) {
+                                    return value.toLocaleString();
+                                }
+                                return '';
+                            }
+                        },
+                        grid: { color: '#1a1a1a' }
+                    }
                 }
             }
         });
 
-        new Chart(document.getElementById('pieChart'), {
-            type: 'doughnut',
+        // Status Chart - Grouped bars (not stacked) so every status is clearly visible
+        new Chart(document.getElementById('statusChart'), {
+            type: 'bar',
             data: {
                 labels: labels,
-                datasets: [{
-                    data: contactValues,
-                    backgroundColor: colors,
-                    borderWidth: 0,
-                }]
+                datasets: [
+                    {
+                        label: 'Open',
+                        data: openValues,
+                        backgroundColor: '#aaaaaa',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Won',
+                        data: wonValues,
+                        backgroundColor: '#4CAF50',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Lost',
+                        data: lostValues,
+                        backgroundColor: '#f44336',
+                        borderRadius: 4,
+                    },
+                    {
+                        label: 'Abandoned',
+                        data: abandonedValues,
+                        backgroundColor: '#555555',
+                        borderRadius: 4,
+                    }
+                ]
             },
             options: {
                 responsive: true,
@@ -271,6 +405,23 @@
                     legend: {
                         position: 'bottom',
                         labels: { color: '#888', padding: 16 }
+                    }
+                },
+                scales: {
+                    x: { ticks: { color: '#888' }, grid: { color: '#1a1a1a' } },
+                    y: {
+                        type: 'logarithmic',
+                        ticks: {
+                            color: '#888',
+                            maxTicksLimit: 5,
+                            callback: function(value) {
+                                if (value === 10 || value === 100 || value === 1000 || value === 10000 || value === 100000) {
+                                    return value.toLocaleString();
+                                }
+                                return '';
+                            }
+                        },
+                        grid: { color: '#1a1a1a' }
                     }
                 }
             }
