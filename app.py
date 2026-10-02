@@ -1,8 +1,8 @@
 ﻿from flask import Flask, render_template
 from dotenv import load_dotenv
-from ghl_client import get_contacts, get_opportunities, get_stale_open_deals
+from ghl_client import get_contacts, get_opportunities, get_stale_open_deals, get_new_leads_this_week
+from datetime import datetime, timedelta
 import os
-import datetime
 
 load_dotenv()
 app = Flask(__name__)
@@ -26,8 +26,21 @@ SUB_ACCOUNTS = {
     },
 }
 
+cache_data = {}
+cache_time = None
+CACHE_DURATION = timedelta(minutes=5)
+
 @app.route("/")
 def dashboard():
+    global cache_data, cache_time
+
+    now = datetime.now()
+
+    if cache_time and (now - cache_time) < CACHE_DURATION and cache_data:
+        data = cache_data
+        last_updated = cache_time.strftime("%d %b %Y, %I:%M %p")
+        return render_template("dashboard.html", data=data, last_updated=last_updated)
+
     data = {}
     for name, config in SUB_ACCOUNTS.items():
         key = config["api_key"]
@@ -64,14 +77,23 @@ def dashboard():
         except:
             stale = "Error"
 
+        try:
+            new_leads = get_new_leads_this_week(key, loc)
+        except:
+            new_leads = "Error"
+
         data[name] = {
             "total_contacts": total_contacts,
             "opportunities": opp_stats,
             "win_rate": win_rate,
             "stale_deals": stale,
+            "new_leads":new_leads,
         }
 
-    last_updated = datetime.datetime.now().strftime("%d %b %Y, %I:%M %p")
+    cache_data = data
+    cache_time = now
+    last_updated = now.strftime("%d %b %Y, %I:%M %p")
+
     return render_template("dashboard.html", data=data, last_updated=last_updated)
 
 if __name__ == "__main__":

@@ -230,6 +230,10 @@
                 <div class="account-name">{{ name }}</div>
                 <div class="metric-value">{{ "{:,}".format(metrics.total_contacts) if metrics.total_contacts != 'Error' else 'N/A' }}</div>
                 <div class="metric-label">Total Contacts</div>
+                <div style="margin-top:12px; padding-top:12px; border-top:1px solid #222; font-size:12px;">
+                <span style="color:#4CAF50; font-weight:700;">+{{ metrics.new_leads if metrics.new_leads != 'Error' else '?' }}</span>
+                <span style="color:#555;"> new this week</span>
+            </div>
             </div>
             {% endfor %}
 
@@ -440,6 +444,23 @@
                 }
             }
         });
+                // Auto-refresh countdown
+        const REFRESH_MINUTES = 5;
+        let secondsLeft = REFRESH_MINUTES * 60;
+
+        const countdownEl = document.createElement('div');
+        countdownEl.style.cssText = 'font-size:11px; color:#444; text-align:center; padding: 8px;';
+        document.querySelector('.footer').appendChild(countdownEl);
+
+        setInterval(function() {
+            secondsLeft--;
+            const mins = Math.floor(secondsLeft / 60);
+            const secs = secondsLeft % 60;
+            countdownEl.textContent = `Auto-refresh in ${mins}:${secs.toString().padStart(2, '0')}`;
+            if (secondsLeft <= 0) {
+                window.location.reload();
+            }
+        }, 1000);
     </script>
 
 </body>

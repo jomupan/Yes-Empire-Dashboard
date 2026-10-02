@@ -1,5 +1,5 @@
 ﻿import requests
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 
 BASE_URL = "https://services.leadconnectorhq.com"
 
@@ -42,3 +42,27 @@ def get_stale_open_deals(api_key, location_id, days=30):
             if diff > days:
                 stale += 1
     return stale
+
+def get_new_leads_this_week(api_key, location_id):
+    headers = {
+        "Authorization": f"Bearer {api_key}",
+        "Version": "2021-07-28"
+    }
+    now = datetime.now(timezone.utc)
+    week_ago = now - timedelta(days=7)
+    week_ago_ms = int(week_ago.timestamp() * 1000)
+
+    params = {"locationId": location_id}
+    res = requests.get(f"{BASE_URL}/contacts/", headers=headers, params=params)
+    data = res.json()
+    contacts = data.get("contacts", [])
+
+    count = 0
+    for contact in contacts:
+        date_added = contact.get("dateAdded", "")
+        if date_added:
+            added_dt = datetime.fromisoformat(date_added.replace("Z", "+00:00"))
+            if added_dt >= week_ago:
+                count += 1
+
+    return count
